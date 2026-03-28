@@ -3,25 +3,25 @@ export default {
         label: "Transactions",
         icon: "credit-card",
         permissions: ["trx_payment_methods.list",'trx_invoices.list','trx_payments.list'],
-        activeState:['/payment-methods','/invoices','/payments'],
+        activeState:['/transactions/payment-methods','/transactions/invoices','/transactions/payments'],
         children: {
             payment_methods: {
                 label: 'Payment Methods',
-                route: '/payment-methods',
+                route: '/transactions/payment-methods',
                 permission: "trx_payment_methods.list",
-                activeState:['/payment-methods'],
+                activeState:['/transactions/payment-methods'],
             },
             invoices: {
                 label: 'Invoices',
-                route: '/invoices',
+                route: '/transactions/invoices',
                 permission: "trx_invoices.list",
-                activeState:['/invoices'],
+                activeState:['/transactions/invoices'],
             },
             payments: {
                 label: 'Payments',
-                route: '/payments',
+                route: '/transactions/payments',
                 permission: "trx_payments.list",
-                activeState:['/payments'],
+                activeState:['/transactions/payments'],
             },
         }
     },

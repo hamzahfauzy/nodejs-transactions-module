@@ -1,7 +1,7 @@
 const appUrl = process.env.APP_URL
 export default {
     title: "Invoices",
-    path: 'invoices',
+    path: 'transactions/invoices',
     permission: "trx_invoices.list",
     content: {
         type: "crud",

@@ -1,7 +1,7 @@
 const appUrl = process.env.APP_URL
 export default {
     title: "Payments",
-    path: 'payments',
+    path: 'transactions/payments',
     permission: "trx_payments.list",
     content: {
         type: "crud",
