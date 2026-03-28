@@ -15,6 +15,7 @@ const tables = {
 export default {
     // context {register, ui, db}
     init(context){
+        
         for(const m in menu) {
             context.ui.registerMenu(m, menu[m])
         }

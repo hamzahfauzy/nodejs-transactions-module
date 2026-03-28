@@ -223,12 +223,13 @@ export default {
         afterCreate: async context => {
             const payload = {...context.payload}
             const items = payload.items
+            console.log(payload)
 
             var total_price = 0
         
             items.forEach(item => {
                 const invoiceItem = getModel('trx_invoice_items')
-                invoiceItem.create({
+                const itemObj = {
                     invoice_id: context.data.id,
                     name: item.name,
                     qty: item.qty,
@@ -237,7 +238,15 @@ export default {
                     discount: item.discount,
                     subtotal: item.qty*item.price,
                     final_price: (item.qty*item.price)-item.discount
-                })
+                }
+
+                if(item.ref_name && item.ref_id)
+                {
+                    itemObj.ref_name = item.ref_name
+                    itemObj.ref_id = item.ref_id
+                }
+
+                invoiceItem.create(itemObj)
 
                 total_price += (item.qty*item.price)-item.discount
             })

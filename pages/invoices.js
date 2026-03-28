@@ -96,30 +96,41 @@ export default {
                     show_if: {field: 'status', operator: 'equals', value: 'pending'},
                     modalClass: 'modal-md',
                     fields: [
-                        { 
-                            name: "organization_id", label: "Organization", type: "select2",
-                            dropdownParent: '#edit-modal',
+                        {
+                            name: "organization_id",
+                            label: "Organization",
+                            type: "select2",
+                            dropdownParent: "#edit-modal",
                             ajax: {
                                 useBearer: true,
-                                term: 'search',
-                                response: {id: 'id', text: 'label'},
+                                term: "search",
+                                response: { id: "id", text: "label" },
                                 initList: {
-                                    url: '/table/organizations',
-                                    key: 'organization_id',
-                                    response: {id: 'id', text: 'name'},
+                                url: "/table/organizations",
+                                key: "organization_id",
+                                response: { id: "id", text: "name" },
                                 },
-                                url: appUrl + '/table/organizations',
-                                urlParams: [{key: 'id', value: 'id'}]
-                            }
+                                url: appUrl + "/table/organizations",
+                                urlParams: [{ key: "id", value: "id" }],
+                            },
                         },
-                        { name: "code", label: "Code", type: "text"},
-                        { name: "due_date", label: "Due Date", type: "datePicker"},
-                        { name: "status", label: "Status", type: "select", className: 'col-md-6', defaultValue: 'active', options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
-                        ]},
-                        { name: "description", label: "Description", type: "textarea"},
-                        { name: "record_type", label: "Record Type", type: "text"},
+                        { name: "code", label: "Code", type: "text", className: 'col-md-6' },
+                        { name: "due_date", label: "Due Date", type: "datePicker", className: 'col-md-6' },
+                        {
+                            name: "status",
+                            label: "Status",
+                            type: "select",
+                            className: "col-md-6",
+                            defaultValue: "active",
+                            options: [
+                                { label: "Pending", value: "pending" },
+                                { label: "Success", value: "success" },
+                                { label: "Overdue", value: "overdue" },
+                            ],
+                        },
+                        { name: "record_type", label: "Record Type", type: "text", className: 'col-md-6'},
+                        { name: "description", label: "Description", type: "textArea" },
+                        
                     ]
                 },
                 { label: 'Delete', type: 'delete', icon: 'trash', class:'text-danger', permission: "trx_invoices.delete", show_if: {field: 'status', operator: 'equals', value: 'pending'}},
