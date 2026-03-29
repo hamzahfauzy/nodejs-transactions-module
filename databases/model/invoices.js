@@ -19,6 +19,9 @@ const responseField = {
     tax_price: {},
     tax_alias: {},
     final_price: {},
+    invoice_url: {
+        value: row => process.env.APP_URL + '/public/transactions/invoices/' + row.code
+    },
     total_paid: {
         value: (row) => {
             const payments = row.payments || []
@@ -56,6 +59,15 @@ const responseField = {
     record_type: { searchable: true },
     ref_name: {},
     ref_id: {},
+    reference: {
+        morph: true,
+        typeField: 'ref_name',
+        idField: 'ref_id',
+        fields: {
+            id: {},
+            name: {}
+        }
+    },
     created_at: {},
     updated_at: {},
     deleted_at: {},
@@ -220,10 +232,27 @@ export default {
     },
 
     events: {
+        beforeCreate: async context => {
+            const payload = context.payload
+            const organization_id = payload.ref_organization_id
+            const people_id = payload.ref_people_id
+
+            delete payload.ref_organization_id
+            delete payload.ref_people_id
+            payload.ref_id = payload.ref_name == 'people' ? people_id : organization_id
+        },
+        beforeUpdate: async context => {
+            const payload = context.payload
+            const organization_id = payload.ref_organization_id
+            const people_id = payload.ref_people_id
+
+            delete payload.ref_organization_id
+            delete payload.ref_people_id
+            payload.ref_id = payload.ref_name == 'people' ? people_id : organization_id
+        },
         afterCreate: async context => {
             const payload = {...context.payload}
             const items = payload.items
-            console.log(payload)
 
             var total_price = 0
         

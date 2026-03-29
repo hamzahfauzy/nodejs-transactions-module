@@ -21,6 +21,60 @@ export default {
                             url: appUrl + '/table/organizations',
                         }
                     },
+                    {
+                        name: "ref_name",
+                        label: "Ref Type",
+                        type: "select",
+                        defaultValue: "people",
+                        className: 'col-md-6',
+                        options: [
+                            { label: "People", value: "people" },
+                            { label: "Organization", value: "organizations" },
+                        ],
+                    },
+                    {
+                        name: "ref_people_id",
+                        label: "Reference",
+                        type: "select2",
+                        className: 'col-md-6',
+                        dropdownParent: "#create-modal",
+                        ajax: {
+                            useBearer: true,
+                            term: "search",
+                            response: { id: "id", text: "full_name" },
+                            url: appUrl + "/table/people",
+                        },
+                        show_if: {
+                            field: "ref_name",
+                            operator: "equals",
+                            value: "people",
+                        },
+                    },
+                    {
+                        name: "ref_organization_id",
+                        label: "Reference",
+                        type: "select2",
+                        className: 'col-md-6',
+                        dropdownParent: "#create-modal",
+                        ajax: {
+                            useBearer: true,
+                            term: "search",
+                            response: { id: "id", text: "name" },
+                            url: appUrl + "/table/organizations",
+                            initList: {
+                                url: "/table/organizations",
+                                key: "organization_id",
+                                response: { id: "id", text: "name" },
+                            },
+                        },
+                        defaultValue: "organization_id",
+                        defaultFrom: "queryParam",
+                        show_if: {
+                            field: "ref_name",
+                            operator: "equals",
+                            value: "organizations",
+                        },
+                    },
                     { name: "code", label: "Code", type: "text", className: 'col-md-6'},
                     { name: "due_date", label: "Due Date", type: "datePicker", className: 'col-md-6'},
                     { name: "status", label: "Status", type: "select", className: 'col-md-6', defaultValue: 'pending', options: [
@@ -47,6 +101,10 @@ export default {
                 ]
             },
             actions: [
+                { 
+                    label: 'Print', type: 'link', icon: 'eye', permission: "trx_invoices.print", title: 'Print',
+                    to: {value: 'invoice_url'}, 
+                },
                 { 
                     label: 'Detail', type: 'view', icon: 'eye', permission: "trx_invoices.single", title: 'Invoice Detail',
                     modalClass: "modal-lg",
@@ -114,6 +172,60 @@ export default {
                                 urlParams: [{ key: "id", value: "id" }],
                             },
                         },
+                        {
+                            name: "ref_name",
+                            label: "Ref Type",
+                            type: "select",
+                            defaultValue: "people",
+                            className: 'col-md-6',
+                            options: [
+                                { label: "People", value: "people" },
+                                { label: "Organization", value: "organizations" },
+                            ],
+                        },
+                        {
+                            name: "ref_people_id",
+                            label: "Reference",
+                            type: "select2",
+                            className: 'col-md-6',
+                            dropdownParent: "#edit-modal",
+                            ajax: {
+                                useBearer: true,
+                                term: "search",
+                                response: { id: "id", text: "full_name" },
+                                url: appUrl + "/table/people",
+                            },
+                            show_if: {
+                                field: "ref_name",
+                                operator: "equals",
+                                value: "people",
+                            },
+                        },
+                        {
+                            name: "ref_organization_id",
+                            label: "Reference",
+                            type: "select2",
+                            className: 'col-md-6',
+                            dropdownParent: "#edit-modal",
+                            ajax: {
+                                useBearer: true,
+                                term: "search",
+                                response: { id: "id", text: "name" },
+                                url: appUrl + "/table/organizations",
+                                initList: {
+                                    url: "/table/organizations",
+                                    key: "organization_id",
+                                    response: { id: "id", text: "name" },
+                                },
+                            },
+                            defaultValue: "organization_id",
+                            defaultFrom: "queryParam",
+                            show_if: {
+                                field: "ref_name",
+                                operator: "equals",
+                                value: "organizations",
+                            },
+                        },
                         { name: "code", label: "Code", type: "text", className: 'col-md-6' },
                         { name: "due_date", label: "Due Date", type: "datePicker", className: 'col-md-6' },
                         {
@@ -139,6 +251,7 @@ export default {
             columns: [
                 { key: "code", label: "Code", sortable: true, searchable: true },
                 { key: "due_date", label: "Due Date", sortable: true, searchable: true },
+                { key: "reference.name", label: "Ref." },
                 // { key: "total_price", label: "Total Price", type: 'currency', sortable: true, searchable: true },
                 // { key: "tax_price", label: "Tax", type: 'currency',sortable: true, searchable: true },
                 // { key: "discount_price", label: "Discount", type: 'currency', sortable: true, searchable: true },
