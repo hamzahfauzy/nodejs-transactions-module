@@ -10,6 +10,9 @@
         .bg-brand-green {
             background-color: #83b238;
         }
+        .bg-brand-yellow {
+            background-color: #e9d202;
+        }
         .text-brand-green {
             color: #83b238;
         }
@@ -25,17 +28,10 @@
 
         <!-- Header Section -->
         <header class="flex flex-col md:flex-row justify-between items-start mb-12">
-            <div>
-                <!-- Logo Placehoder (SVG mimicking the logo in image) -->
-                <svg width="70" height="50" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg" class="mb-4">
-                    <ellipse cx="50" cy="30" rx="48" ry="28" fill="#1b426a"/>
-                    <ellipse cx="50" cy="30" rx="42" ry="24" fill="none" stroke="#2c67a5" stroke-width="2"/>
-                    <text x="50" y="37" font-family="Arial, sans-serif" font-size="20" font-weight="900" fill="white" text-anchor="middle" letter-spacing="1">LOGO</text>
-                </svg>
-                
-                <h1 class="text-3xl font-extrabold text-brand-dark mb-1">Quest Provider</h1>
-                <p class="text-sm text-gray-600">3150 McGavock Pk, Nashville, Tennessee, 37214, US</p>
-                <p class="text-sm text-gray-600">(555) 555-5555 | hello@questprovider.com</p>
+            <div>                
+                <h1 class="text-3xl font-extrabold text-brand-dark mb-1"><%= invoice.organization.name %></h1>
+                <p class="text-sm text-gray-600"><%= invoice.organization.address %></p>
+                <p class="text-sm text-gray-600"><%= invoice.organization.phone %> | <%= invoice.organization.email %></p>
             </div>
         </header>
 
@@ -44,15 +40,19 @@
             <!-- Left: Recipient -->
             <div class="md:w-1/2">
                 <h3 class="text-xs font-bold text-brand-dark uppercase tracking-widest mb-3">Recipient:</h3>
-                <h2 class="text-2xl font-bold text-brand-dark mb-1">John Hawk</h2>
-                <p class="text-gray-600">1 Titans Way</p>
-                <p class="text-gray-600">Nashville, Tennessee 37213</p>
+                <h2 class="text-2xl font-bold text-brand-dark mb-1"><%= invoice.reference?.name %></h2>
+                <p class="text-gray-600"><%= invoice.reference?.address %></p>
+                <p class="text-gray-600"><%= invoice.reference?.phone %></p>
             </div>
 
             <!-- Right: Receipt Number & Date -->
             <div class="md:w-[40%] flex flex-col justify-start">
                 <div class="bg-brand-green text-white px-5 py-3 text-center">
-                    <h2 class="text-2xl font-bold">No. #<%= code %></h2>
+                    <h2 class="font-bold">No. <%= invoice.code %></h2>
+                </div>
+                
+                <div class="<%= invoice.status == 'success' ? 'bg-brand-green' : 'bg-brand-yellow' %> text-white px-5 py-3 text-center">
+                    <h2 class="font-bold"><%= invoice.status.toUpperCase() %></h2>
                 </div>
             </div>
         </div>
@@ -63,37 +63,23 @@
                 <thead>
                     <tr class="bg-brand-green text-white text-xs uppercase tracking-wider">
                         <th class="py-3 px-4 font-bold w-1/4">Product / Service</th>
-                        <th class="py-3 px-4 font-bold w-2/5">Description</th>
                         <th class="py-3 px-4 font-bold text-center w-24">Qty.</th>
                         <th class="py-3 px-4 font-bold text-right w-32">Cost</th>
+                        <th class="py-3 px-4 font-bold text-right w-32">Discount</th>
                         <th class="py-3 px-4 font-bold text-right w-32">Total</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-800">
                     <!-- Row 1 -->
-                    <tr class="border-b border-gray-100">
-                        <td class="py-5 px-4 align-top">Property maintenance<br>services (hourly)</td>
-                        <td class="py-5 px-4 align-top"></td>
-                        <td class="py-5 px-4 align-top text-center">20</td>
-                        <td class="py-5 px-4 align-top text-right">80.00</td>
-                        <td class="py-5 px-4 align-top text-right">$1,600.00</td>
+                     <% invoice.items.forEach(function(item){ %>
+                        <tr class="border-b border-gray-100">
+                        <td class="py-5 px-4 align-top"><%= item.name %></td>
+                        <td class="py-5 px-4 align-top text-center"><%= item.qty %></td>
+                        <td class="py-5 px-4 align-top text-right"><%= item.price_format %></td>
+                        <td class="py-5 px-4 align-top text-right"><%= item.discount_format %></td>
+                        <td class="py-5 px-4 align-top text-right"><%= item.subtotal_format %></td>
                     </tr>
-                    <!-- Row 2 -->
-                    <tr class="border-b border-gray-100">
-                        <td class="py-5 px-4 align-top">Yard maintenance<br>services (hourly)</td>
-                        <td class="py-5 px-4 align-top"></td>
-                        <td class="py-5 px-4 align-top text-center">20</td>
-                        <td class="py-5 px-4 align-top text-right">80.00</td>
-                        <td class="py-5 px-4 align-top text-right">$1,600.00</td>
-                    </tr>
-                    <!-- Row 3 -->
-                    <tr class="border-b border-gray-100">
-                        <td class="py-5 px-4 align-top">One-off junk removal</td>
-                        <td class="py-5 px-4 align-top pr-10">Clearance of bulky furniture throughout<br>property. Excludes carpets, curtains,<br>fixtures and fittings.</td>
-                        <td class="py-5 px-4 align-top text-center">1</td>
-                        <td class="py-5 px-4 align-top text-right">310.00</td>
-                        <td class="py-5 px-4 align-top text-right">$310.00</td>
-                    </tr>
+                    <% }); %>
                 </tbody>
             </table>
         </div>
@@ -109,19 +95,35 @@
             <div class="w-full md:w-[40%]">
                 <h3 class="text-xl font-bold text-brand-dark mb-4">Receipt for Payment</h3>
                 
-                <div class="flex justify-between py-3 border-b border-gray-100">
+                <div class="flex justify-between py-1 border-b border-gray-100">
                     <span class="text-gray-600">Subtotal</span>
-                    <span class="text-gray-800">$3,510.00</span>
+                    <span class="text-gray-800"><%= invoice.items.reduce((accumulator, currentItem) => {
+                    return parseFloat(accumulator) + parseFloat(currentItem.subtotal);
+                    }, 0).toLocaleString('id-ID'); %></span>
                 </div>
                 
-                <div class="flex justify-between py-3 border-b border-gray-100">
-                    <span class="text-gray-600">Tax (13%)</span>
-                    <span class="text-gray-800">$456.30</span>
+                <% if(invoice.dicount_price > 0){ %>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-600">Discount <%= invoice.discount_alias != 0 ? `(${invoice.discount_alias})` : '' %></span>
+                    <span class="text-gray-800"><%= invoice.dicount_price %></span>
                 </div>
+                <% } %>
+                
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-600">Total</span>
+                    <span class="text-gray-800"><%= parseInt(invoice.total_price).toLocaleString('id-ID') %></span>
+                </div>
+
+                <% if(invoice.tax_price > 0){ %>
+                <div class="flex justify-between py-1 border-b border-gray-100">
+                    <span class="text-gray-600">Tax (<%= invoice.tax_alias %>)</span>
+                    <span class="text-gray-800"><%= invoice.tax_price %></span>
+                </div>
+                <% } %>
                 
                 <div class="flex justify-between py-4 mt-1">
                     <span class="font-bold text-gray-900 text-base">Total</span>
-                    <span class="font-bold text-gray-900 text-base">$3,966.30</span>
+                    <span class="font-bold text-gray-900 text-base"><%= parseInt(invoice.final_price).toLocaleString('id-ID') %></span>
                 </div>
             </div>
         </div>

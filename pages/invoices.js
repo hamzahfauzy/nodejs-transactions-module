@@ -77,6 +77,23 @@ export default {
                     },
                     { name: "code", label: "Code", type: "text", className: 'col-md-6'},
                     { name: "due_date", label: "Due Date", type: "datePicker", className: 'col-md-6'},
+                    { name: "discount_type", label: "Discount Type", type: "select", className: 'col-md-6', defaultValue: 'fixed', options: [
+                        { label: "Fixed", value: "fixed" },
+                        { label: "Percent", value: "percent" },
+                    ]},
+                    { name: "discount_price", label: "Discount", type: "text", className: 'col-md-6'},
+                    { name: "discount_alias", type: "hidden", formula: 'discount_price + "" + (discount_type == "percent" ? "%" : "")'},
+                    { name: "discount_value", type: "hidden", formula: '(discount_type == "fixed" ? discount_price : sum(items.final_price)*discount_price/100)'},
+
+                    { name: "tax_type", label: "Tax Type", type: "select", className: 'col-md-6', defaultValue: 'percent', options: [
+                        { label: "Fixed", value: "fixed" },
+                        { label: "Percent", value: "percent" },
+                    ]},
+                    { name: "tax_price", label: "Tax", type: "text", className: 'col-md-6'},
+                    { name: "tax_alias", type: "hidden", formula: 'tax_price + "" + (tax_type == "percent" ? "%" : "")'},
+                    { name: "tax_value", type: "hidden", formula: '(tax_type == "fixed" ? tax_price : total_price*tax_price/100)'},
+                    { name: "total_price", label: "Total Price", type: "text", className: 'col-md-6', props: {readonly: true}, formula: 'sum(items.final_price)-discount_value'},
+                    { name: "final_price", label: "Final Price", type: "text", className: 'col-md-6', props: {readonly: true}, formula: 'total_price+tax_value'},
                     { name: "status", label: "Status", type: "select", className: 'col-md-6', defaultValue: 'pending', options: [
                         { label: "Pending", value: "pending" },
                         { label: "Success", value: "success" },
@@ -117,14 +134,14 @@ export default {
                                 label:{'success':'Success', 'pending':'Pending', 'overdue': 'Overdue'}
                             }
                         },
+                        { name: "discount_value", label: "Discount", type: "text", className: 'col-md-6' },
                         { name: "total_price", label: "Total Price", type: "currency", className: 'col-md-6' },
-                        { name: "discount_price", label: "Discount Price", type: "currency", className: 'col-md-6' },
-                        { name: "tax_price", label: "Tax Price", type: "currency", className: 'col-md-6' },
+                        { name: "tax_value", label: "Tax", type: "text", className: 'col-md-6' },
                         { name: "final_price", label: "Final Price", type: "currency", className: 'col-md-6' },
                         { name: "total_paid", label: "Total Paid", type: "currency", className: 'col-md-6' },
                         { name: "remaining_amount", label: "Remaining Amount", type: "currency", className: 'col-md-6' },
                         { name: "record_type", label: "Record Type", type: "text", className: 'col-md-6' },
-                        { name: "description", label: "Description", type: "text", className: 'col-md-6' },
+                        { name: "description", label: "Description", type: "text" },
                         { name: "created_at", label: "Created At", type: "date", className: 'col-md-6' },
                         { name: "updated_at", label: "Updated At", type: "date", className: 'col-md-6' },
                         {
@@ -270,6 +287,14 @@ export default {
                 { key: "created_at", label: "Created At", sortable: true,type: "date" },
                 { key: "updated_at", label: "Updated At", sortable: true,type: "date" },
             ],
+
+            filters: [
+                { key: "status", type: "options", label: "Status", placeholder: 'All Status', options: [
+                    {label: 'Pending', value: 'pending'},
+                    {label: 'Success', value: 'success'},
+                    {label: 'Overdue', value: 'overdue'},
+                ] },
+            ]
         }
     }
 }

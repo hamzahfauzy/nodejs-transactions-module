@@ -3,6 +3,10 @@ import { DataTypes } from "#database/database.sequelize.js";
 
 const responseField = {
     id: {},
+    organization: {
+        relation:true,
+        as: 'organization'
+    },
     organization_name: {
         relation: true,
         searchable: true,
@@ -63,10 +67,6 @@ const responseField = {
         morph: true,
         typeField: 'ref_name',
         idField: 'ref_id',
-        fields: {
-            id: {},
-            name: {}
-        }
     },
     created_at: {},
     updated_at: {},
@@ -75,6 +75,18 @@ const responseField = {
 
 const singleResponseField = {
     ...responseField, 
+    discount_value: {
+        value: (row) => {
+            const alias = row.discount_alias && row.discount_alias.includes('%') ? `(${row.discount_alias})` : ''
+            return `${parseInt(row.discount_price).toLocaleString('id-ID')} ${alias}`
+        }
+    },
+    tax_value: {
+        value: (row) => {
+            const alias = row.tax_alias && row.tax_alias.includes('%') ? `(${row.tax_alias})` : ''
+            return `${parseInt(row.tax_price).toLocaleString('id-ID')} ${alias}`
+        }
+    },
     items: {
         relation: 'hasMany',
         model: 'trx_invoice_items',
@@ -85,6 +97,11 @@ const singleResponseField = {
             qty: {},
             unit: {},
             discount: {},
+            discount_format: {
+                value: row => {
+                    return parseInt(row.discount).toLocaleString('id-ID')
+                }
+            },
             price: {},
             price_format: {
                 value: row => {
@@ -234,57 +251,60 @@ export default {
     events: {
         beforeCreate: async context => {
             const payload = context.payload
-            const organization_id = payload.ref_organization_id
-            const people_id = payload.ref_people_id
-
-            delete payload.ref_organization_id
-            delete payload.ref_people_id
-            payload.ref_id = payload.ref_name == 'people' ? people_id : organization_id
+            if(!payload.ref_name)
+            {
+                const organization_id = payload.ref_organization_id
+                const people_id = payload.ref_people_id
+    
+                delete payload.ref_organization_id
+                delete payload.ref_people_id
+                payload.ref_id = payload.ref_name == 'people' ? people_id : organization_id
+            }
         },
         beforeUpdate: async context => {
             const payload = context.payload
-            const organization_id = payload.ref_organization_id
-            const people_id = payload.ref_people_id
+            if(!payload.ref_name)
+            {
+                const organization_id = payload.ref_organization_id
+                const people_id = payload.ref_people_id
 
-            delete payload.ref_organization_id
-            delete payload.ref_people_id
-            payload.ref_id = payload.ref_name == 'people' ? people_id : organization_id
+                delete payload.ref_organization_id
+                delete payload.ref_people_id
+                payload.ref_id = payload.ref_name == 'people' ? people_id : organization_id
+            }
         },
         afterCreate: async context => {
             const payload = {...context.payload}
             const items = payload.items
 
-            var total_price = 0
+            const invoiceItemModel = getModel('trx_invoice_items')
+
+            const bulkPayload = items.map(item => ({
+                invoice_id: context.data.id,
+                name: item.name,
+                qty: item.qty,
+                unit: item.unit,
+                price: item.price,
+                discount: item.discount,
+                subtotal: item.qty * item.price,
+                final_price: (item.qty * item.price) - item.discount,
+                ref_name: item.ref_name || null,
+                ref_id: item.ref_id || null
+            }))
+
+            await invoiceItemModel.bulkCreate(bulkPayload)
         
-            items.forEach(item => {
-                const invoiceItem = getModel('trx_invoice_items')
-                const itemObj = {
-                    invoice_id: context.data.id,
-                    name: item.name,
-                    qty: item.qty,
-                    unit: item.unit,
-                    price: item.price,
-                    discount: item.discount,
-                    subtotal: item.qty*item.price,
-                    final_price: (item.qty*item.price)-item.discount
-                }
-
-                if(item.ref_name && item.ref_id)
-                {
-                    itemObj.ref_name = item.ref_name
-                    itemObj.ref_id = item.ref_id
-                }
-
-                invoiceItem.create(itemObj)
-
-                total_price += (item.qty*item.price)-item.discount
-            })
-
-            var final_price = total_price - context.data.discount_price + context.data.tax_price
+            const total_price = (items || []).reduce((sum, row) => {
+                return sum + ((row.qty*row.price)-row.discount)
+            }, 0) - context.payload.discount_value
+            
+            var final_price = total_price + context.payload.tax_value
 
             await context.table.model.update({
                 total_price,
-                final_price
+                final_price,
+                discount_price: context.payload.discount_value,
+                tax_price: context.payload.tax_value,
             }, { where: {id: context.data.id }})
             
         },

@@ -5,6 +5,8 @@ import payments from './databases/model/payments.js'
 import menu from './config/menu.js'
 import page from './config/page.js'
 import { getView } from '#libs/util.js'
+import { getTable } from '#database/database.registry.js'
+import DatabaseService from '#database/database.service.js'
 
 const tables = {
     payment_methods,
@@ -12,6 +14,8 @@ const tables = {
     invoice_items,
     payments,
 }
+
+const service = new DatabaseService
 
 export default {
     // context {register, ui, db}
@@ -32,10 +36,15 @@ export default {
         context.register.migration('transactions', 'app/transactions/databases/migrations')
 
         context.register.publicRoute('transactions', (router) => {
-            router.get('/invoices/:code', (req, res) => {
-                // req.params.code
+            router.get('/invoices/:code(*)', async (req, res) => {
+                const code = req.params.code
+                const invoiceTable = getTable('trx_invoices')
+                const invoice = await service.singleByClause(invoiceTable, {
+                    code
+                })
+
                 res.render('app/transactions/views/print/invoice', {
-                    code: req.params.code
+                    invoice
                 })
             })
             router.get('/print', (req, res) => {

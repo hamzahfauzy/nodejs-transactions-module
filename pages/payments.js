@@ -52,13 +52,13 @@ export default {
                     { name: "amount", label: "Amount", type: "number", className: 'col-md-6'},
                     { name: "date", label: "Date", type: "datePicker", className: 'col-md-6'},
                     { 
-                        name: "record_type", label: "Record Type", type: "select", className: 'col-md-6', defaultValue: 'OUT', options: [
+                        name: "record_type", label: "Record Type", type: "select", className: 'col-md-6', defaultValue: 'IN', options: [
                             { label: "IN", value: "IN" },
                             { label: "OUT", value: "OUT" },
                         ]
                     },
                     { name: "description", label: "Description", type: "textArea"},
-                    { name: "status", label: "Status", type: "select", defaultValue: 'pending', options: [
+                    { name: "status", label: "Status", type: "select", defaultValue: 'success', options: [
                         { label: "Pending", value: "pending" },
                         { label: "Success", value: "success" },
                         { label: "Cancelled", value: "cancelled" },
@@ -147,13 +147,13 @@ export default {
                         { name: "amount", label: "Amount", type: "number", className: 'col-md-6'},
                         { name: "date", label: "Date", type: "datePicker", className: 'col-md-6'},
                         { 
-                            name: "record_type", label: "Record Type", type: "select", className: 'col-md-6', defaultValue: 'OUT', options: [
+                            name: "record_type", label: "Record Type", type: "select", className: 'col-md-6', defaultValue: 'IN', options: [
                                 { label: "IN", value: "IN" },
                                 { label: "OUT", value: "OUT" },
                             ]
                         },
                         { name: "description", label: "Description", type: "textArea"},
-                        { name: "status", label: "Status", type: "select", defaultValue: 'pending', options: [
+                        { name: "status", label: "Status", type: "select", defaultValue: 'success', options: [
                             { label: "Pending", value: "pending" },
                             { label: "Success", value: "success" },
                             { label: "Cancelled", value: "cancelled" },
@@ -181,6 +181,14 @@ export default {
                 { key: "created_at", label: "Created At", sortable: true,type: "date" },
                 { key: "updated_at", label: "Updated At", sortable: true,type: "date" },
             ],
+
+            filters: [
+                { key: "status", type: "options", label: "Status", placeholder: 'All Status', options: [
+                    {label: 'Pending', value: 'pending'},
+                    {label: 'Success', value: 'success'},
+                    {label: 'Cancelled', value: 'cancelled'},
+                ] },
+            ]
         }
     }
 }

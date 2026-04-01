@@ -1,6 +1,7 @@
 import { getTable } from "#database/database.registry.js";
 import { DataTypes } from "#database/database.sequelize.js";
 import DatabaseService from "#database/database.service.js";
+import { eventBus } from "#libs/eventBus.js";
 import { formatDate } from "#libs/util.js";
 
 const service = new DatabaseService()
@@ -26,6 +27,10 @@ const responseField = {
     organization_id: {},
     invoice_id: {},
     payment_method_id: {},
+    invoice: {
+        relation: true,
+        as: 'invoice',
+    },
     amount: {},
     date: {},
     status: {},
@@ -41,11 +46,14 @@ async function updateWhenSuccess(payload){
     {
         const invoiceTable = getTable('trx_invoices')
         const invoice = await service.single(invoiceTable, payload.invoice_id)
+        
         if(parseInt(payload.amount) == parseInt(invoice.remaining_amount))
         {
             await service.update(invoiceTable, payload.invoice_id, {
                 status: 'success'
             })
+
+            eventBus.emit('payment.success', {invoice})
         }
     }
 }
@@ -54,9 +62,11 @@ async function updateWhenPending(payload){
     if(payload.invoice_id && payload.status != 'success')
     {
         const invoiceTable = getTable('trx_invoices')
-        await service.update(invoiceTable, payload.invoice_id, {
+        const invoice = await service.update(invoiceTable, payload.invoice_id, {
             status: 'pending'
         })
+
+        eventBus.emit('payment.cancel', {payload, invoice})
     }
 }
 
@@ -199,7 +209,7 @@ export default {
                 delete payload.invoice_id
             }
             
-            updateWhenSuccess(payload)
+            await updateWhenSuccess(payload)
 
             return payload
         },
@@ -210,8 +220,8 @@ export default {
                 delete payload.invoice_id
             }
 
-            updateWhenSuccess(payload)
-            updateWhenPending(payload)
+            await updateWhenSuccess(payload)
+            await updateWhenPending(payload)
 
             return payload
         },
